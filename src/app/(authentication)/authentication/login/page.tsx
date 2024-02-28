@@ -1,19 +1,13 @@
+"use client"
+
 import { signIn } from 'next-auth/react';
 import GoogleOAuthButton from '~/components/auth/googleLogin';
 import { type z } from 'zod';
 import Link from 'next/link';
 import EmailForm from '~/components/forms/email-form';
 import type emailFormSchema from '~/common/forms/email-form';
-import { useEffect } from 'react';
-import { getServerAuthSession } from "~/server/auth";
 
-const Login = async () => {
-    const session = await getServerAuthSession();
-
-    useEffect(() => {
-        console.log('session', session)
-    }, [session]);
-
+const Login = () => {
     const handleSubmitEmail = async (values: z.infer<typeof emailFormSchema>) => {
         const { email } = values;
         try {

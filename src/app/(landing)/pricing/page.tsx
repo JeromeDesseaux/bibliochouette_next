@@ -1,19 +1,20 @@
-import styled from "styled-components";
 import SubscriptionCard from "~/components/subscriptions/subscription-card";
+import { type ReactNode } from "react";
+import { getServerSession } from "next-auth";
 
-const PricingWrapper = styled.div`
-  background-color: #f5f5f5;
-  justify-content: center;
-  align-items: center;
-  flex-grow: 1;
-  display: flex;
-  flex: 1;
-`;
+const PricingWrapper = ({ children }: { children: ReactNode }) => {
+    return (
+        <div className="flex justify-center items-center grow-1 flex-1" style={{ "backgroundColor": "#f5f5f5" }}>
+            {children}
+        </div>
+    )
+}
 
-const Pricing = () => {
+const Pricing = async () => {
+    const session = await getServerSession();
     return (
         <PricingWrapper>
-            <SubscriptionCard />
+            <SubscriptionCard userEmail={session?.user.email!} userId={session?.user.id!} />
         </PricingWrapper>
     );
 }

@@ -4,7 +4,6 @@ import { type ReactNode } from "react";
 import React from "react";
 import { ThemeProvider } from "~/components/providers/theme-provider";
 import { TRPCReactProvider } from "~/trpc/react";
-import StyledComponentsRegistry from '~/lib/registry';
 
 
 export const metadata = {
@@ -35,11 +34,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <html lang="en" suppressHydrationWarning={true}>
             <body >
-                <StyledComponentsRegistry>
-                    <ClientLayout>
-                        {children}
-                    </ClientLayout>
-                </StyledComponentsRegistry>
+                <ClientLayout>
+                    {children}
+                </ClientLayout>
             </body>
         </html>
     )

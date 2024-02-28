@@ -1,39 +1,36 @@
-import React, { useEffect, type ReactNode } from 'react';
+"use client";
+
+import React, { type ReactNode } from 'react';
 import Image from "next/image"
-import styled from 'styled-components'
-import { useRouter } from 'next/navigation';
-import { getServerAuthSession } from "~/server/auth";
 
+interface ColumnProps {
+    children: ReactNode;
+    hiddenOnMobile?: boolean;
+}
 
-const Column = styled.div`
-    padding: 10px;
-    flex-direction: column;
-    flex-basis: 100%;
-    flex: 1;
-    height: 100vh;
-`;
-
-const Wrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    flex-wrap: wrap;
-`;
-
-export default async function AuthLayout({ children }: { children: ReactNode }) {
-    const session = await getServerAuthSession();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!session) return;
-        if (session.user) {
-            router.push('/');
-        }
-    }, [session]);
+const Column = ({ children, hiddenOnMobile }: ColumnProps) => {
+    const hiddenOnMobileClass = hiddenOnMobile ? 'hidden md:block' : '';
 
     return (
+        // <div className='relative hidden lg:block h-screen md:flex w-1/2'>
+        <div className={`relative h-screen flex lg:w-1/2 sm:px-3 justify-center items-center ${hiddenOnMobileClass}`}>
+            {children}
+        </div>
+    )
+}
+
+const Wrapper = ({ children }: { children: ReactNode }) => {
+    return (
+        <div className='flex flex-row height-full width-full flex-wrap'>
+            {children}
+        </div>
+    )
+}
+
+export default function AuthLayout({ children }: { children: ReactNode }) {
+    return (
         <Wrapper>
-            <Column className='relative hidden lg:block h-screen md:flex w-1/2'>
+            <Column hiddenOnMobile>
                 <Image
                     src="/library.jpeg"
                     alt="Authentication"
@@ -42,8 +39,8 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 90vw"
                     style={{ objectFit: 'cover' }} />
             </Column>
-            <Column className='flex justify-center items-center'>
-                <div className='md:w-96 sm:w-100'>
+            <Column>
+                <div className='md:w-96'>
                     {children}
                 </div>
             </Column>
