@@ -1,6 +1,5 @@
 import SubscriptionCard from "~/components/subscriptions/subscription-card";
 import { type ReactNode } from "react";
-import { getServerSession } from "next-auth";
 
 const PricingWrapper = ({ children }: { children: ReactNode }) => {
     return (
@@ -11,10 +10,9 @@ const PricingWrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const Pricing = async () => {
-    const session = await getServerSession();
     return (
         <PricingWrapper>
-            <SubscriptionCard userEmail={session?.user.email!} userId={session?.user.id!} />
+            <SubscriptionCard />
         </PricingWrapper>
     );
 }

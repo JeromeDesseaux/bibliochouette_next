@@ -8,8 +8,6 @@ const checkoutSchema = z.object({
     plan: z.string(),
     plan_name: z.string(),
     plan_frequency: z.string(),
-    customerId: z.string().optional(),
-    customerEmail: z.string().optional(),
 });
 
 const subscriptionSchema = z.object({
@@ -73,16 +71,39 @@ const isSameSubscription = (dbSubscription: any, input: CheckoutStripeDTO) => {
 }
 
 const createSubscription = async (ctx: any, session: Stripe.Checkout.Session, input: CheckoutStripeDTO, status: string = "INCOMPLETE") => {
+    const userId = ctx.session.user.id;
+    let customerId = session.customer as string | null | undefined;
+    if (!customerId) {
+        const customerSearch = await stripe.customers.search({
+            query: `email:\'${ctx.session.user.email}\'`
+        });
+        if (customerSearch.data.length === 0) {
+            const customer = await stripe.customers.create({
+                email: ctx.session.user.email
+            });
+            customerId = customer.id;
+        } else {
+            customerId = customerSearch.data[0]?.id; // Add null check here
+        }
+    }
+
+    console.log(customerId)
+
+    if (!userId) throw new TRPCError({ code: "NOT_FOUND" });
     // create subscription in the database
     await ctx.db.stripeSubscription.create({
         data: {
-            userId: session.metadata!.user_id,
-            customerId: session.customer as string,
+            customerId: customerId,
             subscriptionId: session.subscription as string ?? undefined,
             status: status,
             plan: input.plan_name,
             frequency: input.plan_frequency,
-            stripeProductId: input.plan
+            stripeProductId: input.plan,
+            user: {
+                connect: {
+                    id: userId,
+                },
+            },
         },
     });
 }
@@ -127,15 +148,19 @@ const updateOrCreateSubscription = async (ctx: any, session: Stripe.Checkout.Ses
 }
 
 const createSession = async (ctx: any, input: CheckoutStripeDTO) => {
-    const { req, session } = ctx;
-    const userEmail = session?.user?.email ?? input.customerEmail;
-    const origin = req.headers.origin || "http://localhost:3000";
+    const { headers, session } = ctx;
+
+    if (!session) throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (!session.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (!session.user.id || !session.user.email) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    const origin = headers.origin || "http://localhost:3000";
 
     // if user is logged in, redirect to thank you page, otherwise redirect to signup page.
-    const success_url = `${origin}/thankyou?session_id={CHECKOUT_SESSION_ID}&user_id=${input.customerId}`;
+    const success_url = `${origin}/thankyou?session_id={CHECKOUT_SESSION_ID}&user_id=${session.user.id}`;
 
     return await stripe.checkout.sessions.create({
-        customer_email: userEmail,
+        customer_email: session.user.email,
         mode: "subscription",
         line_items: [
             {
@@ -144,7 +169,7 @@ const createSession = async (ctx: any, input: CheckoutStripeDTO) => {
             },
         ],
         metadata: {
-            user_id: input.customerId as string,
+            user_id: session.user.id as string,
         },
         success_url: success_url,
         cancel_url: `${origin}/pricing?session_id={CHECKOUT_SESSION_ID}`,
@@ -156,11 +181,10 @@ export const stripeRouter = createTRPCRouter({
     createSession: protectedProcedure
         .input(checkoutSchema)
         .mutation(async ({ ctx, input }) => {
-            console.log("session");
             try {
                 const session = await createSession(ctx, input);
                 updateOrCreateSubscription(ctx, session, input);
-                return { session };
+                return session as Stripe.Checkout.Session;
             } catch (error) {
                 if (error instanceof Stripe.errors.StripeError) {
                     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", cause: error });

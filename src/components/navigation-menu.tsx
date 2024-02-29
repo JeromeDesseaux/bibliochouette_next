@@ -29,7 +29,7 @@ const NavigationBar = async () => {
                 {session ? (
                     <NavLink href="/dashboard">Dashboard</NavLink>
                 ) : (
-                    <NavLink href="/auth/login">Connexion</NavLink>
+                    <NavLink href="/authentication/login">Connexion</NavLink>
                 )}
             </div>
         </NavigationMenu>

@@ -1,6 +1,7 @@
 "use client";
 
 import { loadStripe } from "@stripe/stripe-js";
+import Stripe from "stripe";
 import { env } from "~/env";
 import { type CheckoutStripeDTO } from "~/server/api/routers/stripe";
 // import { getServerAuthSession } from "~/server/auth";
@@ -24,20 +25,11 @@ const subscriptionPlans = [
     }
 ]
 
-type SubscriptionCardProps = {
-    userId: string | null | undefined;
-    userEmail: string | null | undefined;
-};
 
-
-const SubscriptionCard = ({ userId, userEmail }: SubscriptionCardProps) => {
-
+const SubscriptionCard = () => {
     const stripeAPI = api.stripe.createSession.useMutation();
-    const userIdOrEmailEmpty = !userId || !userEmail;
-
 
     const handleClick = async () => {
-        if (userIdOrEmailEmpty) return;
         // const session = await getServerAuthSession();
         // step 1: load stripe
         const STRIPE_PK = env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
@@ -48,16 +40,14 @@ const SubscriptionCard = ({ userId, userEmail }: SubscriptionCardProps) => {
             plan: subscriptionPlans[0]!.plans[0]!.stripeId,
             plan_name: subscriptionPlans[0]!.name,
             plan_frequency: subscriptionPlans[0]!.plans[0]!.name,
-            customerId: userId,
-            customerEmail: userEmail,
         };
         // step 3: make a post fetch api call to /checkout-session handler
         const result = await stripeAPI.mutateAsync(body);
         console.log(result);
 
         // step 4: get the data and redirect to checkout using the sessionId
-        const sessionId = result?.session.id!;
-        stripe?.redirectToCheckout({ sessionId });
+        const session = result as Stripe.Checkout.Session;
+        stripe?.redirectToCheckout({ sessionId: session.id });
     };
     // render a simple card
     return (
@@ -65,7 +55,6 @@ const SubscriptionCard = ({ userId, userEmail }: SubscriptionCardProps) => {
             <h2 className="text-xl font-bold text-gray-700">Monthly Subscription</h2>
             <p className="text-gray-400">$20 per month</p>
             <button
-                disabled={userIdOrEmailEmpty}
                 onClick={() => handleClick()}
                 className="border border-violet-200 text-violet-500 rounded-md px-4 py-2 w-full hover:bg-violet-500 hover:text-violet-200 transition-colors"
             >
