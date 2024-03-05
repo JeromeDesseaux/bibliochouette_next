@@ -49,3 +49,17 @@ export const sendSubscriptionConfirmation = async (email: string) => {
     if (response.error)
         throw new Error("Error sending subscription confirmation" + response.error);
 }
+
+export const sendSubscriptionError = async (email: string) => {
+    const response = await resend.emails.send(
+        {
+            to: email,
+            from: env.EMAIL_FROM,
+            subject: "Echec d'abonnement",
+            text: "Une erreur est survenue lors de votre abonnement à Bibliochouette. Vous n'avez pas été débité. Veuillez réessayer ou contacter le support si nécessaire contact@bibliochouette.fr",
+        },
+    )
+    if (response.error)
+        throw new Error("Error sending subscription confirmation" + response.error);
+}
+

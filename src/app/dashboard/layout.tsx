@@ -25,6 +25,12 @@ const Sidebar = styled.div`
     padding: 20px;
 `;
 
+export const metadata = {
+    title: "Dashboard - Bibliochouette",
+    description: "Dashboard général de gestion d'ouvrages et de prêts pour Bibliochouette",
+};
+
+
 export default function MainLayout({ children }: { children: ReactNode }) {
     return (<DashboardWrapper>
         <Sidebar>

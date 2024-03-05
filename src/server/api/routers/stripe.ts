@@ -62,13 +62,13 @@ const getSubscriptionFromDB = async (ctx: any) => {
     return dbSubscription;
 }
 
-const isSameSubscription = (dbSubscription: any, input: CheckoutStripeDTO) => {
-    if (!dbSubscription) return false;
-    if (dbSubscription.plan !== input.plan_name) return false;
-    if (dbSubscription.frequency !== input.plan_frequency) return false;
-    if (dbSubscription.stripeProductId !== input.plan) return false;
-    return true;
-}
+// const isSameSubscription = (dbSubscription: any, input: CheckoutStripeDTO) => {
+//     if (!dbSubscription) return false;
+//     if (dbSubscription.plan !== input.plan_name) return false;
+//     if (dbSubscription.frequency !== input.plan_frequency) return false;
+//     if (dbSubscription.stripeProductId !== input.plan) return false;
+//     return true;
+// }
 
 const createSubscription = async (ctx: any, session: Stripe.Checkout.Session, input: CheckoutStripeDTO, status: string = "INCOMPLETE") => {
     const userId = ctx.session.user.id;
@@ -131,7 +131,7 @@ const updateOrCreateSubscription = async (ctx: any, session: Stripe.Checkout.Ses
 
     let dbSubscription = await getSubscriptionFromDB(ctx);
 
-    if (isSameSubscription(dbSubscription, input)) throw new TRPCError({ code: "FORBIDDEN" });
+    // if (isSameSubscription(dbSubscription, input)) throw new TRPCError({ code: "FORBIDDEN" });
 
     if (!dbSubscription) {
         // create subscription in the database
@@ -144,6 +144,7 @@ const updateOrCreateSubscription = async (ctx: any, session: Stripe.Checkout.Ses
             await updateSubscription(ctx, session, input, dbSubscription);
         }
     }
+    if (!dbSubscription) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })
     return dbSubscription;
 }
 

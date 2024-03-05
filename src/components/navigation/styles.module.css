@@ -2,19 +2,28 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0;
+    /* padding: 20px 0; */
     border-bottom: 1px solid #f5f5f5;
 }
 
 .logo_container {
+    padding: 5px;
+    padding-left: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
+}
+
+
+.logo_container:hover {
+    cursor: pointer;
 }
 
 .links_wrapper {
     display: flex;
     align-items: center;
     gap: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
