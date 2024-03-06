@@ -1,29 +1,31 @@
 import React, { type ReactNode } from 'react';
-import styled from 'styled-components';
 
-const DashboardWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    min-height: 100vh;
-`;
 
-const ContentWrapper = styled.div`
-    display: flex;
-    flex-grow: 1;
-    padding: 20px;
-    flex-direction: column;
-`;
+const DashboardWrapper = ({ children }: { children: ReactNode }) => {
+    return (
+        <div className='flex flex-row min-h-screen'>
+            {children}
+        </div>
+    )
+}
 
-const Sidebar = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #f5f5f5;
-    min-height: 100vh;
-    width: 300px;
-    padding: 20px;
-`;
+const ContentWrapper = ({ children }: { children: ReactNode }) => {
+    return (
+        <div className='flex flex-grow flex-col p-20'>
+            {children}
+        </div>
+    )
+}
+
+
+const Sidebar = ({ children }: { children: ReactNode }) => {
+    return (
+        <div className='flex flex-col items-center justify-center bg-gray-100 min-h-screen w-72 p-20'>
+            {children}
+        </div>
+    )
+}
+
 
 export const metadata = {
     title: "Dashboard - Bibliochouette",
