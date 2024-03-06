@@ -4,8 +4,8 @@ import NavigationBar from "~/components/navigation-menu";
 import { getServerAuthSession } from "~/server/auth";
 
 
-const LandingLayout = ({ children }: { children: ReactNode }) => {
-    const session = getServerAuthSession();
+const LandingLayout = async ({ children }: { children: ReactNode }) => {
+    const session = await getServerAuthSession();
     return (
         <LandingWrapper>
             <NavigationBar session={session} />
